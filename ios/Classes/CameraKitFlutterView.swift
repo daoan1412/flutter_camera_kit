@@ -203,7 +203,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     @available(iOS 10.0, *)
     func setupAVCapture(){
         session.sessionPreset = AVCaptureSession.Preset.hd1920x1080
-          guard let device = captureDevice(position: cameraPosition) else {
+          guard let device = captureDevice(forPosition: cameraPosition) else {
                               return
           }
           captureDevice = device
