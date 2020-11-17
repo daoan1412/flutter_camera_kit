@@ -22,6 +22,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     var initCameraFinished:Bool! = false
     var isFillScale:Bool!
     var flashMode:AVCaptureDevice.FlashMode!
+    var cameraPosition: AVCaptureDevice.Position!
     
     var previewView : UIView!
     var videoDataOutput: AVCaptureVideoDataOutput!
@@ -74,7 +75,8 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                         self.initCamera(hasBarcodeReader: (myArgs?["hasBarcodeReader"] as! Bool),
                                         flashMode: (myArgs?["flashMode"] ) as! String,isFillScale:
                                         (myArgs?["isFillScale"] ) as! Bool
-                            , barcodeMode:   (myArgs?["barcodeMode"] ) as! Int
+                            , barcodeMode:   (myArgs?["barcodeMode"] ) as! Int,
+                            cameraPosition: (myArgs?["cameraPosition"]) as! String
                             )
                     }
                 } else if FlutterMethodCall.method == "resumeCamera" {
@@ -144,6 +146,14 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
             self.flashMode = .off
                   }
     }
+
+    func setCameraPosition(position: String) {
+        if position == "B" {
+            cameraPosition = AVCaptureDevice.Position.back;
+        } else if position == "F" {
+            cameraPosition = AVCaptureDevice.Position.front;
+        }
+    }
     
     func view() -> UIView {
         if previewView == nil {
@@ -153,11 +163,12 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         return previewView
     }
     
-    func initCamera(hasBarcodeReader: Bool, flashMode: String, isFillScale: Bool, barcodeMode: Int) {
+    func initCamera(hasBarcodeReader: Bool, flashMode: String, isFillScale: Bool, barcodeMode: Int, cameraPosition: String) {
         self.hasBarcodeReader = hasBarcodeReader
         self.isFillScale = isFillScale
         var myBarcodeMode: Int
         setFlashMode(flashMode: flashMode)
+        setCameraPosition(cameraPosition: cameraPosition)
         if hasBarcodeReader == true{
 //            let barcodeOptions = BarcodeScannerOptions(formats:
 //                BarcodeFormat(rawValue: barcodeMode))
@@ -183,7 +194,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
           guard let device = AVCaptureDevice
           .default(AVCaptureDevice.DeviceType.builtInWideAngleCamera,
                    for: .video,
-                   position: AVCaptureDevice.Position.back) else {
+                   position: cameraPosition) else {
                               return
           }
           captureDevice = device
@@ -366,7 +377,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         if barcodeScanner != nil {
             let visionImage = VisionImage(buffer: sampleBuffer)
             let orientation = imageOrientation(
-              fromDevicePosition: .back
+              fromDevicePosition: cameraPosition
             )
             visionImage.orientation = orientation
             var barcodes: [Barcode]

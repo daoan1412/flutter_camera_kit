@@ -18,9 +18,6 @@ class CameraKitFactory : NSObject, FlutterPlatformViewFactory {
         cameraKitFlutterView.setMethodHandler()
         return cameraKitFlutterView
     }
-    
-
-    
    
     init(registrar: FlutterPluginRegistrar) {
         self.registrar = registrar

@@ -26,6 +26,7 @@ enum BarcodeFormats {
   FORMAT_PDF417,
   FORMAT_AZTEC
 }
+enum CameraPosition { back, front }
 
 // ignore: must_be_immutable
 class CameraKitView extends StatefulWidget {
@@ -58,9 +59,9 @@ class CameraKitView extends StatefulWidget {
   ///Barcode scanning not support from this. Default value is true.
   final bool useCamera2API;
 
+  final CameraPosition cameraPosition;
+
   _BarcodeScannerViewState viewState;
-
-
 
   CameraKitView(
       {Key key,
@@ -71,6 +72,7 @@ class CameraKitView extends StatefulWidget {
       this.previewFlashMode = CameraFlashMode.auto,
       this.cameraKitController,
       this.onPermissionDenied,
+      this.cameraPosition = CameraPosition.back,
       this.useCamera2API = true})
       : super(key: key);
 
@@ -212,6 +214,19 @@ class NativeCameraKitController {
     return flashMode;
   }
 
+  String _getCharCameraPosition(CameraPosition cameraPosition) {
+    String pos;
+    switch (cameraPosition) {
+      case CameraPosition.back:
+        pos = "B";
+        break;
+      case CameraPosition.front:
+        pos = "F";
+        break;
+    }
+    return pos;
+  }
+
   void initCamera() async {
     _channel.setMethodCallHandler(nativeMethodCallHandler);
     _channel.invokeMethod('requestPermission').then((value) {
@@ -222,14 +237,16 @@ class NativeCameraKitController {
             "flashMode": _getCharFlashMode(widget.previewFlashMode),
             "isFillScale": _getScaleTypeMode(widget.scaleType),
             "barcodeMode": _getBarcodeModeValue(widget.barcodeFormat),
-            "useCamera2API": widget.useCamera2API
+            "useCamera2API": widget.useCamera2API,
+             "cameraPosition": _getCharCameraPosition(widget.cameraPosition)
           });
         } else {
           _channel.invokeMethod('initCamera', {
             "hasBarcodeReader": widget.hasBarcodeReader,
             "flashMode": _getCharFlashMode(widget.previewFlashMode),
             "isFillScale": _getScaleTypeMode(widget.scaleType),
-            "barcodeMode": _getBarcodeModeValue(widget.barcodeFormat)
+            "barcodeMode": _getBarcodeModeValue(widget.barcodeFormat),
+            "cameraPosition": _getCharCameraPosition(widget.cameraPosition)
           });
         }
       } else {

@@ -27,6 +27,7 @@ Camera kit for flutter
 
 #  s.dependency 'GoogleMLKit'
   s.dependency 'GoogleMLKit/BarcodeScanning'
+  s.dependency 'GoogleMLKit/FaceDetection'
   s.dependency 'Flutter'
   s.static_framework = true
   
