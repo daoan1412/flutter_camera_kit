@@ -168,7 +168,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         self.isFillScale = isFillScale
         var myBarcodeMode: Int
         setFlashMode(flashMode: flashMode)
-        setCameraPosition(cameraPosition: cameraPosition)
+        setCameraPosition(position: cameraPosition)
         if hasBarcodeReader == true{
 //            let barcodeOptions = BarcodeScannerOptions(formats:
 //                BarcodeFormat(rawValue: barcodeMode))
