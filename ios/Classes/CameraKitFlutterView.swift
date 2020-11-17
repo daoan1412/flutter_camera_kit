@@ -187,14 +187,23 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         }
             self.setupAVCapture()
     }
+
+      private func captureDevice(forPosition position: AVCaptureDevice.Position) -> AVCaptureDevice? {
+        if #available(iOS 10.0, *) {
+            let discoverySession = AVCaptureDevice.DiscoverySession(
+                deviceTypes: [.builtInWideAngleCamera],
+                mediaType: .video,
+                position: .unspecified
+            )
+            return discoverySession.devices.first { $0.position == position }
+        }
+        return nil
+    }
     
     @available(iOS 10.0, *)
     func setupAVCapture(){
         session.sessionPreset = AVCaptureSession.Preset.hd1920x1080
-          guard let device = AVCaptureDevice
-          .default(AVCaptureDevice.DeviceType.builtInWideAngleCamera,
-                   for: .video,
-                   position: cameraPosition) else {
+          guard let device = captureDevice(position: cameraPosition) else {
                               return
           }
           captureDevice = device
