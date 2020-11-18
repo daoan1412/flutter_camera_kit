@@ -468,18 +468,18 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     return
                 }
 
-                if (Int(rotX) > self.headEulerAngle["maxY"]!) {
+                if (Int(rotY) > self.headEulerAngle["maxY"]!) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 7)
                     return
                 }
 
-                if (Int(rotX) < self.headEulerAngle["minY"]!) {
+                if (Int(rotY) < self.headEulerAngle["minY"]!) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 8)
                     return
                 }
 
                 if let image = imageFromImageBuffer(imageBuffer, faceFrame: frame) {
-                    if let data = image.jpegData(compressionQuality: 0.8) {
+                    if let data = image.jpegData(compressionQuality: 1.0) {
                          channel.invokeMethod("onFaceImageCallBack", 
                          arguments: FlutterStandardTypedData(bytes: data))
                          self.headEulerAngle = [:]
