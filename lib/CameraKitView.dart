@@ -60,6 +60,9 @@ class CameraKitView extends StatefulWidget {
   final bool useCamera2API;
 
   final CameraPosition cameraPosition;
+  final bool hasFaceDetection;
+  final Function onFaceDetectionMsgCallBack;
+  final Function onFaceImageCallBack;
 
   _BarcodeScannerViewState viewState;
 
@@ -68,11 +71,14 @@ class CameraKitView extends StatefulWidget {
       this.hasBarcodeReader = false,
       this.scaleType = ScaleTypeMode.fill,
       this.onBarcodeRead,
+      this.hasFaceDetection = false,
       this.barcodeFormat = BarcodeFormats.FORMAT_ALL_FORMATS,
       this.previewFlashMode = CameraFlashMode.auto,
       this.cameraKitController,
       this.onPermissionDenied,
       this.cameraPosition = CameraPosition.back,
+      this.onFaceDetectionMsgCallBack,
+      this.onFaceImageCallBack,
       this.useCamera2API = true})
       : super(key: key);
 
@@ -188,6 +194,16 @@ class NativeCameraKitController {
         widget.onBarcodeRead(methodCall.arguments);
     }
 
+    if (methodCall.method == "onFaceDetectionMsgCallBack" &&
+        widget.onFaceDetectionMsgCallBack != null) {
+      widget.onFaceDetectionMsgCallBack(methodCall.arguments);
+    }
+
+    if (methodCall.method == "onFaceImageCallBack" &&
+        widget.onFaceImageCallBack != null) {
+      widget.onFaceImageCallBack(methodCall.arguments);
+    }
+
     return null;
   }
 
@@ -238,7 +254,8 @@ class NativeCameraKitController {
             "isFillScale": _getScaleTypeMode(widget.scaleType),
             "barcodeMode": _getBarcodeModeValue(widget.barcodeFormat),
             "useCamera2API": widget.useCamera2API,
-             "cameraPosition": _getCharCameraPosition(widget.cameraPosition)
+            "cameraPosition": _getCharCameraPosition(widget.cameraPosition),
+            "hasFaceDetection": widget.hasFaceDetection
           });
         } else {
           _channel.invokeMethod('initCamera', {
@@ -246,7 +263,8 @@ class NativeCameraKitController {
             "flashMode": _getCharFlashMode(widget.previewFlashMode),
             "isFillScale": _getScaleTypeMode(widget.scaleType),
             "barcodeMode": _getBarcodeModeValue(widget.barcodeFormat),
-            "cameraPosition": _getCharCameraPosition(widget.cameraPosition)
+            "cameraPosition": _getCharCameraPosition(widget.cameraPosition),
+            "hasFaceDetection": widget.hasFaceDetection
           });
         }
       } else {
@@ -291,6 +309,18 @@ class NativeCameraKitController {
   Future<void> setCameraVisible(bool isCameraVisible) {
     return _channel
         .invokeMethod('setCameraVisible', {"isCameraVisible": isCameraVisible});
+  }
+
+  Future<void> setFaceDetectionStrategy(
+      int minX, int maxX, int minY, int maxY, int minZ, maxZ) {
+    return _channel.invokeMethod("setFaceDetectionStrategy", {
+      'minX': minX,
+      'maxX': maxX,
+      'minY': minY,
+      'maxY': maxY,
+      'minZ': minZ,
+      'maxZ': maxZ
+    });
   }
 
   int _getBarcodeModeValue(BarcodeFormats barcodeMode) {
