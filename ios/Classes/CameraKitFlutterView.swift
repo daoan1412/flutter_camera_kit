@@ -124,7 +124,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 self.headEulerAngle["maxY"] = (myArgs?["maxY"] as! Int)
                 self.headEulerAngle["minZ"] = (myArgs?["minZ"] as! Int)
                 self.headEulerAngle["maxZ"] = (myArgs?["maxZ"] as! Int)
-                print(" setFaceDetectionStrategy \(self.headEulerAngle)")
              }           
             })
     }
@@ -422,12 +421,14 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 return
             }
             var faces: [Face]
+
             do {
                 faces = try faceDetector.results(in: visionImage)
             } catch let error {
                 print("Failed to detect faces with error: \(error.localizedDescription).")
                 return
             }
+            
             for face in faces {
                 let frame = face.frame
                 let rotX = face.headEulerAngleX
@@ -479,7 +480,9 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
 
                 if let image = imageFromImageBuffer(imageBuffer, faceFrame: frame) {
                     if let data = image.jpegData(compressionQuality: 0.8) {
-                         channel.invokeMethod("onFaceImageCallBack", arguments: FlutterStandardTypedData(bytes: data))
+                         channel.invokeMethod("onFaceImageCallBack", 
+                         arguments: FlutterStandardTypedData(bytes: data))
+                         self.headEulerAngle = [:]
                     }
                 }
             }
@@ -499,7 +502,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
             guard !barcodes.isEmpty else {
                //print("Barcode scanner returrned no results.")
                return
-             }
+            }
             
             for barcode in barcodes {
                 barcodeRead(barcode: barcode.rawValue!)
@@ -508,8 +511,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         
     }
 
-     func imageFromImageBuffer(_ imageBuffer : CVImageBuffer, faceFrame: CGRect) -> UIImage?
-    {
+     func imageFromImageBuffer(_ imageBuffer : CVImageBuffer, faceFrame: CGRect) -> UIImage? {
         let rect = CGRect(
             x: faceFrame.origin.x,
             y: faceFrame.origin.y,
