@@ -124,6 +124,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 self.headEulerAngle["maxY"] = (myArgs?["maxY"] as! Int)
                 self.headEulerAngle["minZ"] = (myArgs?["minZ"] as! Int)
                 self.headEulerAngle["maxZ"] = (myArgs?["maxZ"] as! Int)
+                print("set setFaceDetectionStrategy  minX \(self.headEulerAngle["minX"])")
              }           
             })
     }
