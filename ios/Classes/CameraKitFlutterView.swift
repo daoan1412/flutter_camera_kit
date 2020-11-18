@@ -124,6 +124,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 self.headEulerAngle["maxY"] = (myArgs?["maxY"] as! Int)
                 self.headEulerAngle["minZ"] = (myArgs?["minZ"] as! Int)
                 self.headEulerAngle["maxZ"] = (myArgs?["maxZ"] as! Int)
+                print(" setFaceDetectionStrategy \(self.headEulerAngle)")
              }           
             })
     }
@@ -481,7 +482,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                          channel.invokeMethod("onFaceImageCallBack", arguments: FlutterStandardTypedData(bytes: data))
                     }
                 }
-                
             }
         }
         
