@@ -21,6 +21,12 @@ class CameraKitController {
     cameraKitView.viewState.controller.resumeCamera();
   }
 
+  setFaceDetectionStrategy(
+      int minX, int maxX, int minY, int maxY, int minZ, maxZ) {
+    cameraKitView.viewState.controller
+        .setFaceDetectionStrategy(minX, maxX, minY, maxY, minZ, maxZ);
+  }
+
   ///Use this method for taking picture in take picture mode
   ///This method return path of image
   Future<String> takePicture() {

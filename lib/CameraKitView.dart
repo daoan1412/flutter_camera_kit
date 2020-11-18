@@ -312,7 +312,7 @@ class NativeCameraKitController {
   }
 
   Future<void> setFaceDetectionStrategy(
-      int minX, int maxX, int minY, int maxY, int minZ, maxZ) {
+      int minX, int maxX, int minY, int maxY, int minZ, int maxZ) {
     return _channel.invokeMethod("setFaceDetectionStrategy", {
       'minX': minX,
       'maxX': maxX,
