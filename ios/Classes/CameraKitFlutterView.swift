@@ -118,12 +118,12 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     self.takePicture()
                         }
              else if FlutterMethodCall.method == "setFaceDetectionStrategy" {
-                headEulerAngle["minX"] = myArgs?["minX"] as! Int
-                headEulerAngle["maxX"] = myArgs?["maxX"] as! Int
-                headEulerAngle["minY"] = myArgs?["minY"] as! Int
-                headEulerAngle["maxY"] = myArgs?["maxY"] as! Int
-                headEulerAngle["minZ"] = myArgs?["minZ"] as! Int
-                headEulerAngle["maxZ"] = myArgs?["maxZ"] as! Int
+                headEulerAngle["minX"] = (myArgs?["minX"] as! Int)
+                headEulerAngle["maxX"] = (myArgs?["maxX"] as! Int)
+                headEulerAngle["minY"] = (myArgs?["minY"] as! Int)
+                headEulerAngle["maxY"] = (myArgs?["maxY"] as! Int)
+                headEulerAngle["minZ"] = (myArgs?["minZ"] as! Int)
+                headEulerAngle["maxZ"] = (myArgs?["maxZ"] as! Int)
              }           
             })
     }
@@ -456,22 +456,22 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     return
                 }
 
-                if(rotX > self.headEulerAngle["maxX"]) {
+                if(rotX > self.headEulerAngle["maxX"]!) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 5)
                     return
                 }
 
-                if (rotX < self.headEulerAngle["minX"]) {
+                if (rotX < self.headEulerAngle["minX"]!) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 6)
                     return
                 }
 
-                if (rotY > self.headEulerAngle["maxY"]) {
+                if (rotY > self.headEulerAngle["maxY"]!) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 7)
                     return
                 }
 
-                if (rotY < self.headEulerAngle["minY"]) {
+                if (rotY < self.headEulerAngle["minY"]!) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 8)
                     return
                 }
