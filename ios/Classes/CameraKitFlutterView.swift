@@ -65,7 +65,8 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     
     
     public func setMethodHandler() {
-        self.channel.setMethodCallHandler({[unowned self] (FlutterMethodCall,  FlutterResult) in
+        self.channel.setMethodCallHandler({[weak self] (FlutterMethodCall,  FlutterResult) in
+                guard let self = self else { return }
                 let args = FlutterMethodCall.arguments
                 let myArgs = args as? [String: Any]
                 if FlutterMethodCall.method == "requestPermission" {
@@ -442,8 +443,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
 
                 let x = frame.origin.x 
                 let y = frame.origin.y
-
-                print("rotZ \(rotZ)")
 
                 if (x < 0) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 0)
