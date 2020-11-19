@@ -75,7 +75,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     self.requestPermission(flutterResult: FlutterResult)
                 } else if FlutterMethodCall.method == "initCamera" {
                     self.initCameraFinished = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         self.initCamera(hasBarcodeReader: (myArgs?["hasBarcodeReader"] as! Bool),
                                         flashMode: (myArgs?["flashMode"] ) as! String,isFillScale:
                                         (myArgs?["isFillScale"] ) as! Bool
@@ -169,6 +169,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     }
     
     func view() -> UIView {
+        print("get uiView")
         if previewView == nil {
         self.previewView = UIView(frame: frame)
 //            previewView.contentMode = UIView.ContentMode.scaleAspectFill
