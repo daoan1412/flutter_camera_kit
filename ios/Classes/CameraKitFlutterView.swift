@@ -89,7 +89,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                             self.captureSession.startRunning()
                             let rootLayer :CALayer = self.previewView.layer
                             rootLayer.masksToBounds = true
-                            previewLayer.frame = rootLayer.bounds
+                            self.previewLayer.frame = rootLayer.bounds
                             rootLayer.addSublayer(self.previewLayer)
                             self.isCameraVisible = true
                         }
