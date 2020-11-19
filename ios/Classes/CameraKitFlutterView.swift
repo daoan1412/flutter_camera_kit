@@ -65,14 +65,12 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     }
 
     private func resumeCamera() {
-          if  self.initCameraFinished == true {
-                        self.previewLayer.frame = self.previewView.layer.bounds
-                        self.sessionQueue.async { [weak self] in
-                            guard let self = self else { return }
-                            self.captureSession.startRunning()
-                            self.isCameraVisible = true
-                        }
-                    }
+        self.previewLayer.frame = self.previewView.layer.bounds
+        self.sessionQueue.async { [weak self] in
+            guard let self = self else { return }
+            self.captureSession.startRunning()
+            self.isCameraVisible = true
+        }
     }
     
     
@@ -84,7 +82,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 if FlutterMethodCall.method == "requestPermission" {
                     self.requestPermission(flutterResult: FlutterResult)
                 } else if FlutterMethodCall.method == "initCamera" {
-                    self.initCameraFinished = false
                     DispatchQueue.main.async {[weak self] in
                         guard let self = self else { return }
                         self.initCamera(hasBarcodeReader: (myArgs?["hasBarcodeReader"] as! Bool),
@@ -99,12 +96,11 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     self.resumeCamera()
             }
                 else if FlutterMethodCall.method == "pauseCamera" {
-                     if self.initCameraFinished == true {
-                         self.sessionQueue.async {
+                         self.sessionQueue.async { [weak self] in
+                            guard let self = self else { return }
                             self.captureSession.stopRunning()
                              self.isCameraVisible = false
                          }
-                    }
                 }
             else if FlutterMethodCall.method == "changeFlashMode" {
                     self.setFlashMode(flashMode: (myArgs?["flashMode"] ) as! String)
@@ -282,7 +278,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
          rootLayer.masksToBounds = true
          rootLayer.addSublayer(self.previewLayer)
         self.setUpCaptureSessionOutput()
-        self.initCameraFinished = true
     }
 
    private func captureDevice(forPosition position: AVCaptureDevice.Position) -> AVCaptureDevice? {
