@@ -443,6 +443,8 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 let x = frame.origin.x 
                 let y = frame.origin.y
 
+                print("rotZ \(rotZ)")
+
                 if (x < 0) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 0)
                     return
