@@ -88,7 +88,6 @@ class CameraKitView extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    print("init createState");
     if (cameraKitController != null) cameraKitController.setView(this);
     viewState = _BarcodeScannerViewState();
     return viewState;
@@ -248,7 +247,6 @@ class NativeCameraKitController {
     _channel.setMethodCallHandler(nativeMethodCallHandler);
     _channel.invokeMethod('requestPermission').then((value) {
       if (value) {
-        print("init camera");
         if (Platform.isAndroid) {
           _channel.invokeMethod('initCamera', {
             "hasBarcodeReader": widget.hasBarcodeReader,

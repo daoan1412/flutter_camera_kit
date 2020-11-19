@@ -63,6 +63,16 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
             }
         }
     }
+
+    private func resumeCamera() {
+          if  self.initCameraFinished == true {
+                        self.previewLayer.frame = self.previewView.layer.bounds
+                        self.sessionQueue.async {
+                            self.captureSession.startRunning()
+                            self.isCameraVisible = true
+                        }
+                    }
+    }
     
     
     public func setMethodHandler() {
@@ -82,15 +92,10 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                             cameraPosition: (myArgs?["cameraPosition"]) as! String,
                             hasFaceDetection: (myArgs?["hasFaceDetection"]) as! Bool
                             )
+                        self.resumeCamera()
                     }
                 } else if FlutterMethodCall.method == "resumeCamera" {
-                    if  self.initCameraFinished == true {
-                        self.previewLayer.frame = self.previewView.layer.bounds
-                        self.sessionQueue.async {
-                            self.captureSession.startRunning()
-                            self.isCameraVisible = true
-                        }
-                    }
+                    self.resumeCamera()
             }
                 else if FlutterMethodCall.method == "pauseCamera" {
                      if self.initCameraFinished == true {

@@ -4,10 +4,6 @@ import 'package:camerakit/CameraKitView.dart';
 class CameraKitController {
   CameraKitView cameraKitView;
 
-  CameraKitController() {
-    print("init CameraKitController");
-  }
-
   ///pause camera while stop camera preview.
   ///Plugin manage automatically pause camera based android, iOS lifecycle and widget visibility
   pauseCamera() {
