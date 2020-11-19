@@ -118,7 +118,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     self.takePicture()
                         }
              else if FlutterMethodCall.method == "setFaceDetectionStrategy" {
-                 print("xxxxxxxxx setFaceDetectionStrategy")
                 self.headEulerAngle["minX"] = (myArgs?["minX"] as! Int)
                 self.headEulerAngle["maxX"] = (myArgs?["maxX"] as! Int)
                 self.headEulerAngle["minY"] = (myArgs?["minY"] as! Int)
@@ -459,22 +458,29 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     return
                 }
 
-                if(Int(rotX) > self.headEulerAngle["maxX"]!) {
+               guard let maxX = self.headEulerAngle["maxX"],
+                      let minX = self.headEulerAngle["minX"],
+                      let minY = self.headEulerAngle["minY"],
+                      let maxY = self.headEulerAngle["maxY"] else {
+                    return
+                }
+
+                if(Int(rotX) > maxX) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 5)
                     return
                 }
 
-                if (Int(rotX) < self.headEulerAngle["minX"]!) {
+                if (Int(rotX) < minX) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 6)
                     return
                 }
 
-                if (Int(rotY) > self.headEulerAngle["maxY"]!) {
+                if (Int(rotY) > maxY) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 7)
                     return
                 }
 
-                if (Int(rotY) < self.headEulerAngle["minY"]!) {
+                if (Int(rotY) < minY) {
                     channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 8)
                     return
                 }
