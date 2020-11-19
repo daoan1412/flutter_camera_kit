@@ -428,6 +428,11 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 print("Failed to detect faces with error: \(error.localizedDescription).")
                 return
             }
+
+            if (faces.isEmpty) {
+                channel.invokeMethod("onFaceDetectionMsgCallBack", arguments: 9)
+                return
+            }
             
             for face in faces {
                 let frame = face.frame
