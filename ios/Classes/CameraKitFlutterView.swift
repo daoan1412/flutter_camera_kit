@@ -107,7 +107,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     //print("isCameraVisible: " + String(isCameraVisible))
                     if cameraVisibility == true {
                         if self.isCameraVisible == false {
-                            self.session.startRunning()
+                            self.captureSession.startRunning()
                             self.isCameraVisible = true
                         }
                     } else {
@@ -179,7 +179,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     }
 
     private func setUpPreviewLayer() {
-          previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+          previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
             if self.isFillScale == true {
                     previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
             } else {
@@ -188,10 +188,11 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     }
 
     private func setUpCaptureSessionInput() {
-         sessionQueue.async {
-            let cameraPosition: AVCaptureDevice.Position =  cameraPosition
-            guard let device = self.captureDevice(forPosition: cameraPosition) else {
-                print("Failed to get capture device for camera position: \(cameraPosition)")
+         sessionQueue.async {[weak self] in
+            guard let self = self else { return }
+            let cameraPosition: AVCaptureDevice.Position =  self.cameraPosition
+            guard let device = self.captureDevice(forPosition: self.cameraPosition) else {
+                print("Failed to get capture device for camera position: \(self.cameraPosition)")
                 return
             }
             do {
@@ -365,8 +366,9 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     // }
     
     func stopCamera(){
-        if session.isRunning {
-            session.stopRunning()
+        self.sessionQueue.async {
+            self.captureSession.startRunning()
+            self.isCameraVisible = true
         }
     }
 
