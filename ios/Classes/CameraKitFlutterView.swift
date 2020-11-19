@@ -13,7 +13,7 @@ import MLKitVision
 import MLKitFaceDetection
 
 @available(iOS 10.0, *)
-class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate{
+class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate {
     let channel: FlutterMethodChannel
     let frame: CGRect
 
@@ -32,16 +32,16 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     var photoOutput: AVCapturePhotoOutput?
     var previewLayer:AVCaptureVideoPreviewLayer!
     var captureDevice : AVCaptureDevice!
-    let session = AVCaptureSession()
+    let captureSession = AVCaptureSession()
     var barcodeScanner:BarcodeScanner!
     var faceDetector: FaceDetector!
     var flutterResultTakePicture:FlutterResult!
+    private lazy var sessionQueue = DispatchQueue(label: "civams.face.admin.camera.SessionQueue")
 
     var headEulerAngle: [String: Int] = [:]
     
     init(registrar: FlutterPluginRegistrar, viewId: Int64, frame: CGRect) {
-        print("init(registrar: FlutterPluginRegistrar, viewId: Int64, frame: CGRect)")
-         self.channel = FlutterMethodChannel(name: "plugins/camera_kit_" + String(viewId), binaryMessenger: registrar.messenger())
+        self.channel = FlutterMethodChannel(name: "plugins/camera_kit_" + String(viewId), binaryMessenger: registrar.messenger())
         self.frame = frame
      }
     
@@ -50,7 +50,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
             //already authorized
             flutterResult(true)
         } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            DispatchQueue.main.async {
                 AVCaptureDevice.requestAccess(for: .video, completionHandler: { (granted: Bool) in
                     if granted {
                         //access allowed
@@ -71,11 +71,10 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 let args = FlutterMethodCall.arguments
                 let myArgs = args as? [String: Any]
                 if FlutterMethodCall.method == "requestPermission" {
-                    print("xxx requestPermission")
                     self.requestPermission(flutterResult: FlutterResult)
                 } else if FlutterMethodCall.method == "initCamera" {
                     self.initCameraFinished = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    DispatchQueue.main.async {
                         self.initCamera(hasBarcodeReader: (myArgs?["hasBarcodeReader"] as! Bool),
                                         flashMode: (myArgs?["flashMode"] ) as! String,isFillScale:
                                         (myArgs?["isFillScale"] ) as! Bool
@@ -86,15 +85,18 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     }
                 } else if FlutterMethodCall.method == "resumeCamera" {
                     if  self.initCameraFinished == true {
-                        //self.beginSession(isFirst: false)
-                        self.session.startRunning()
-                        self.isCameraVisible = true
+                        self.sessionQueue.async {
+                            self.captureSession.startRunning()
+                            self.isCameraVisible = true
+                        }
                     }
             }
                 else if FlutterMethodCall.method == "pauseCamera" {
                      if self.initCameraFinished == true {
-                        self.stopCamera()
-                        self.isCameraVisible = false
+                         self.sessionQueue.async {
+                            self.captureSession.stopRunning()
+                             self.isCameraVisible = false
+                         }
                     }
                 }
             else if FlutterMethodCall.method == "changeFlashMode" {
@@ -169,16 +171,73 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     }
     
     func view() -> UIView {
-        print("get uiView")
         if previewView == nil {
         self.previewView = UIView(frame: frame)
 //            previewView.contentMode = UIView.ContentMode.scaleAspectFill
         }
         return previewView
     }
+
+    private func setUpPreviewLayer() {
+          previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+            if self.isFillScale == true {
+                    previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            } else {
+                   previewLayer.videoGravity = AVLayerVideoGravity.resizeAspect
+            }
+    }
+
+    private func setUpCaptureSessionInput() {
+         sessionQueue.async {
+            let cameraPosition: AVCaptureDevice.Position =  cameraPosition
+            guard let device = self.captureDevice(forPosition: cameraPosition) else {
+                print("Failed to get capture device for camera position: \(cameraPosition)")
+                return
+            }
+            do {
+                self.captureSession.beginConfiguration()
+                let currentInputs = self.captureSession.inputs
+                for input in currentInputs {
+                    self.captureSession.removeInput(input)
+                }
+                
+                let input = try AVCaptureDeviceInput(device: device)
+                guard self.captureSession.canAddInput(input) else {
+                    print("Failed to add capture session input.")
+                    return
+                }
+                self.captureSession.addInput(input)
+                self.captureSession.commitConfiguration()
+            } catch {
+                print("Failed to create capture device input: \(error.localizedDescription)")
+            }
+        }
+    }
+
+      private func setUpCaptureSessionOutput() {
+        sessionQueue.async {
+            self.captureSession.beginConfiguration()
+            // When performing latency tests to determine ideal capture settings,
+            // run the app in 'release' mode to get accurate performance metrics
+            self.captureSession.sessionPreset = AVCaptureSession.Preset.medium
+            
+            let output = AVCaptureVideoDataOutput()
+            output.videoSettings = [
+                (kCVPixelBufferPixelFormatTypeKey as String): kCVPixelFormatType_32BGRA,
+            ]
+            output.alwaysDiscardsLateVideoFrames = true
+            let outputQueue = DispatchQueue(label: "VideoDataOutputQueue")
+            output.setSampleBufferDelegate(self, queue: outputQueue)
+            guard self.captureSession.canAddOutput(output) else {
+                print("Failed to add capture session output.")
+                return
+            }
+            self.captureSession.addOutput(output)
+            self.captureSession.commitConfiguration()
+        }
+    }
     
     func initCamera(hasBarcodeReader: Bool, flashMode: String, isFillScale: Bool, barcodeMode: Int, cameraPosition: String, hasFaceDetection: Bool) {
-
         self.hasBarcodeReader = hasBarcodeReader
         self.hasFaceDetection = hasFaceDetection
         self.isFillScale = isFillScale
@@ -209,97 +268,101 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
             self.faceDetector = FaceDetector.faceDetector(options: options)
 
         }
-            self.setupAVCapture()
+        self.setUpPreviewLayer()
+        self.setUpCaptureSessionInput()
+        let rootLayer :CALayer = self.previewView.layer
+        rootLayer.masksToBounds = true
+        previewLayer.frame = rootLayer.bounds
+        rootLayer.addSublayer(self.previewLayer)
+        self.setUpCaptureSessionOutput()
+        self.initCameraFinished = true
     }
 
-      private func captureDevice(forPosition position: AVCaptureDevice.Position) -> AVCaptureDevice? {
-        if #available(iOS 10.0, *) {
+   private func captureDevice(forPosition position: AVCaptureDevice.Position) -> AVCaptureDevice? {
             let discoverySession = AVCaptureDevice.DiscoverySession(
                 deviceTypes: [.builtInWideAngleCamera],
                 mediaType: .video,
                 position: .unspecified
             )
             return discoverySession.devices.first { $0.position == position }
-        }
-        return nil
     }
     
-    func setupAVCapture(){
-        session.sessionPreset = AVCaptureSession.Preset.medium
-          guard let device = captureDevice(forPosition: cameraPosition) else {
-                              return
-          }
-          captureDevice = device
+    // func setupAVCapture(){
+    //     session.sessionPreset = AVCaptureSession.Preset.medium
+    //       guard let device = captureDevice(forPosition: cameraPosition) else {
+    //                           return
+    //       }
+    //       captureDevice = device
     
        
-          beginSession()
-          changeFlashMode()
-      }
+    //       beginSession()
+    //       changeFlashMode()
+    //   }
     
     
-    func beginSession(isFirst: Bool = true){
-        var deviceInput: AVCaptureDeviceInput!
+    // func beginSession(isFirst: Bool = true){
+    //     var deviceInput: AVCaptureDeviceInput!
 
         
-        do {
-            deviceInput = try AVCaptureDeviceInput(device: captureDevice)
-            guard deviceInput != nil else {
-                print("error: cant get deviceInput")
-                return
-            }
+    //     do {
+    //         deviceInput = try AVCaptureDeviceInput(device: captureDevice)
+    //         guard deviceInput != nil else {
+    //             print("error: cant get deviceInput")
+    //             return
+    //         }
             
-            if self.session.canAddInput(deviceInput){
-                self.session.addInput(deviceInput)
-            }
+    //         if self.session.canAddInput(deviceInput){
+    //             self.session.addInput(deviceInput)
+    //         }
 
-            if(hasBarcodeReader || hasFaceDetection) {
-                videoDataOutput = AVCaptureVideoDataOutput()
-                videoDataOutput.alwaysDiscardsLateVideoFrames=true
-                videoDataOutput.videoSettings = [
-                    (kCVPixelBufferPixelFormatTypeKey as String): kCVPixelFormatType_32BGRA,
-                ]
-                videoDataOutputQueue = DispatchQueue(label: "VideoDataOutputQueue")
-                videoDataOutput.setSampleBufferDelegate(self, queue:self.videoDataOutputQueue)
-                if session.canAddOutput(videoDataOutput!){
-                             session.addOutput(videoDataOutput!)
-                 }
-                videoDataOutput.connection(with: .video)?.isEnabled = true
+    //         if(hasBarcodeReader || hasFaceDetection) {
+    //             videoDataOutput = AVCaptureVideoDataOutput()
+    //             videoDataOutput.alwaysDiscardsLateVideoFrames=true
+    //             videoDataOutput.videoSettings = [
+    //                 (kCVPixelBufferPixelFormatTypeKey as String): kCVPixelFormatType_32BGRA,
+    //             ]
+    //             videoDataOutputQueue = DispatchQueue(label: "VideoDataOutputQueue")
+    //             videoDataOutput.setSampleBufferDelegate(self, queue:self.videoDataOutputQueue)
+    //             if session.canAddOutput(videoDataOutput!){
+    //                          session.addOutput(videoDataOutput!)
+    //              }
+    //             videoDataOutput.connection(with: .video)?.isEnabled = true
 
-            }
-            else {
-                photoOutput = AVCapturePhotoOutput()
-                    photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecJPEG])], completionHandler: nil)
-                if session.canAddOutput(photoOutput!){
-                    session.addOutput(photoOutput!)
-                }
-            }
+    //         }
+    //         else {
+    //             photoOutput = AVCapturePhotoOutput()
+    //                 photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecJPEG])], completionHandler: nil)
+    //             if session.canAddOutput(photoOutput!){
+    //                 session.addOutput(photoOutput!)
+    //             }
+    //         }
 
 
 
-            previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
-            if self.isFillScale == true {
-            previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-            } else {
-                   previewLayer.videoGravity = AVLayerVideoGravity.resizeAspect
-            }
+    //         previewLayer = AVCaptureVideoPreviewLayer(session: self.session)
+    //         if self.isFillScale == true {
+    //                 previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+    //         } else {
+    //                previewLayer.videoGravity = AVLayerVideoGravity.resizeAspect
+    //         }
 
-            let rootLayer :CALayer = self.previewView.layer
-            rootLayer.masksToBounds = true
-            previewLayer.frame = rootLayer.bounds
-            rootLayer.addSublayer(self.previewLayer)
-            session.startRunning()
-            if isFirst == true {
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
-                                    self.initCameraFinished = true
-                           }
-            }
+    //         let rootLayer :CALayer = self.previewView.layer
+    //         rootLayer.masksToBounds = true
+    //         previewLayer.frame = rootLayer.bounds
+    //         rootLayer.addSublayer(self.previewLayer)
+    //         session.startRunning()
+    //         if isFirst == true {
+    //         DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
+    //                                 self.initCameraFinished = true
+    //                        }
+    //         }
        
             
-        } catch let error as NSError {
-            deviceInput = nil
-            print("error: \(error.localizedDescription)")
-        }
-    }
+    //     } catch let error as NSError {
+    //         deviceInput = nil
+    //         print("error: \(error.localizedDescription)")
+    //     }
+    // }
     
     func stopCamera(){
         if session.isRunning {
