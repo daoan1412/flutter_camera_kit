@@ -87,10 +87,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     if  self.initCameraFinished == true {
                         self.sessionQueue.async {
                             self.captureSession.startRunning()
-                            let rootLayer :CALayer = self.previewView.layer
-                            rootLayer.masksToBounds = true
                             self.previewLayer.frame = rootLayer.bounds
-                            rootLayer.addSublayer(self.previewLayer)
                             self.isCameraVisible = true
                         }
                     }
@@ -275,6 +272,9 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         }
         self.setUpPreviewLayer()
         self.setUpCaptureSessionInput()
+         let rootLayer :CALayer = self.previewView.layer
+         rootLayer.masksToBounds = true
+         rootLayer.addSublayer(self.previewLayer)
         self.setUpCaptureSessionOutput()
         self.initCameraFinished = true
     }
