@@ -85,9 +85,9 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     }
                 } else if FlutterMethodCall.method == "resumeCamera" {
                     if  self.initCameraFinished == true {
+                        self.previewLayer.frame = self.previewView.layer.bounds
                         self.sessionQueue.async {
                             self.captureSession.startRunning()
-                            self.previewLayer.frame = self.previewView.layer.bounds
                             self.isCameraVisible = true
                         }
                     }
