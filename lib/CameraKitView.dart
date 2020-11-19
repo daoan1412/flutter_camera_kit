@@ -248,6 +248,7 @@ class NativeCameraKitController {
     _channel.setMethodCallHandler(nativeMethodCallHandler);
     _channel.invokeMethod('requestPermission').then((value) {
       if (value) {
+        print("init camera");
         if (Platform.isAndroid) {
           _channel.invokeMethod('initCamera', {
             "hasBarcodeReader": widget.hasBarcodeReader,
