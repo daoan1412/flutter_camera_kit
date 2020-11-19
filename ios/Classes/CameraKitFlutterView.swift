@@ -94,7 +94,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                             cameraPosition: (myArgs?["cameraPosition"]) as! String,
                             hasFaceDetection: (myArgs?["hasFaceDetection"]) as! Bool
                             )
-                        self.resumeCamera()
                     }
                 } else if FlutterMethodCall.method == "resumeCamera" {
                     self.resumeCamera()
