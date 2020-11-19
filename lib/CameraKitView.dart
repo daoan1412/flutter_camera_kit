@@ -88,6 +88,7 @@ class CameraKitView extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
+    print("init createState");
     if (cameraKitController != null) cameraKitController.setView(this);
     viewState = _BarcodeScannerViewState();
     return viewState;

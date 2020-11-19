@@ -40,6 +40,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     var headEulerAngle: [String: Int] = [:]
     
     init(registrar: FlutterPluginRegistrar, viewId: Int64, frame: CGRect) {
+        print("init(registrar: FlutterPluginRegistrar, viewId: Int64, frame: CGRect)")
          self.channel = FlutterMethodChannel(name: "plugins/camera_kit_" + String(viewId), binaryMessenger: registrar.messenger())
         self.frame = frame
      }
@@ -175,6 +176,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
     }
     
     func initCamera(hasBarcodeReader: Bool, flashMode: String, isFillScale: Bool, barcodeMode: Int, cameraPosition: String, hasFaceDetection: Bool) {
+
         self.hasBarcodeReader = hasBarcodeReader
         self.hasFaceDetection = hasFaceDetection
         self.isFillScale = isFillScale
@@ -220,7 +222,6 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
         return nil
     }
     
-    @available(iOS 10.0, *)
     func setupAVCapture(){
         session.sessionPreset = AVCaptureSession.Preset.medium
           guard let device = captureDevice(forPosition: cameraPosition) else {
@@ -249,7 +250,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 self.session.addInput(deviceInput)
             }
 
-            if(hasBarcodeReader) {
+            if(hasBarcodeReader || hasFaceDetection) {
                 videoDataOutput = AVCaptureVideoDataOutput()
                 videoDataOutput.alwaysDiscardsLateVideoFrames=true
                 videoDataOutput.videoSettings = [
