@@ -71,6 +71,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                 let args = FlutterMethodCall.arguments
                 let myArgs = args as? [String: Any]
                 if FlutterMethodCall.method == "requestPermission" {
+                    print("xxx requestPermission")
                     self.requestPermission(flutterResult: FlutterResult)
                 } else if FlutterMethodCall.method == "initCamera" {
                     self.initCameraFinished = false
