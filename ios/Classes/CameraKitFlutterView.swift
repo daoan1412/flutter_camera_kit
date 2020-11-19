@@ -118,6 +118,7 @@ class CameraKitFlutterView : NSObject, FlutterPlatformView, AVCaptureVideoDataOu
                     self.takePicture()
                         }
              else if FlutterMethodCall.method == "setFaceDetectionStrategy" {
+                 print("xxxxxxxxx setFaceDetectionStrategy")
                 self.headEulerAngle["minX"] = (myArgs?["minX"] as! Int)
                 self.headEulerAngle["maxX"] = (myArgs?["maxX"] as! Int)
                 self.headEulerAngle["minY"] = (myArgs?["minY"] as! Int)
