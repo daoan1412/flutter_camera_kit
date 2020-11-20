@@ -132,12 +132,7 @@ class _BarcodeScannerViewState extends State<CameraKitView>
             onPlatformViewCreated: _onPlatformViewCreated,
           ));
     }
-        WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
   }
-
-   _afterLayout(_) {
-      controller.resumeCamera();
-   }
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +170,7 @@ class _BarcodeScannerViewState extends State<CameraKitView>
   void _onPlatformViewCreated(int id) {
     this.controller = new NativeCameraKitController._(id, context, widget);
     this.controller.initCamera();
+    this.controller.resumeCamera();
   }
 
   void disposeView() {
