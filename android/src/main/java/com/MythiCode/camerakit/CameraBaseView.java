@@ -31,7 +31,9 @@ public class CameraBaseView implements PlatformView {
 
     }
 
-    public void initCamera(boolean hasBarcodeReader, char flashMode, boolean isFillScale, int barcodeMode, boolean useCamera2API) {
+    public void initCamera(boolean hasBarcodeReader, char flashMode, 
+            boolean isFillScale, int barcodeMode, 
+            boolean useCamera2API, char cameraPosition, boolean hasFaceDetection) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (useCamera2API)
                 cameraViewInterface = new CameraView2(activity, flutterMethodListener);
@@ -39,7 +41,7 @@ public class CameraBaseView implements PlatformView {
         } else {
             cameraViewInterface = new CameraView1(activity, flutterMethodListener);
         }
-        cameraViewInterface.initCamera(linearLayout, hasBarcodeReader, flashMode, isFillScale, barcodeMode);
+        cameraViewInterface.initCamera(linearLayout, hasBarcodeReader, flashMode, isFillScale, barcodeMode, cameraPosition, hasFaceDetection);
     }
 
     public void setCameraVisible(boolean isCameraVisible) {

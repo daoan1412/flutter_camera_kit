@@ -58,7 +58,11 @@ public class CameraKitFlutterView implements PlatformView, MethodChannel.MethodC
             boolean isFillScale = call.argument("isFillScale");
             int barcodeMode = call.argument("barcodeMode");
             boolean useCamera2API = call.argument("useCamera2API");
-            getCameraView().initCamera(hasBarcodeReader, flashMode, isFillScale, barcodeMode, useCamera2API);
+            char cameraPosition = call.argument("cameraPosition").toString().charAt(0);
+            boolean hasFaceDetection = call.argument("hasFaceDetection");
+
+            getCameraView().initCamera(hasBarcodeReader, flashMode, isFillScale, 
+                    barcodeMode, useCamera2API, cameraPosition, hasFaceDetection);
         } else if (call.method.equals("resumeCamera")) {
             getCameraView().resumeCamera();
 

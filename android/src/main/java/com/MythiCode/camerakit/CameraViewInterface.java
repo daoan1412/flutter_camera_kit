@@ -6,7 +6,9 @@ import io.flutter.plugin.common.MethodChannel;
 
 public interface CameraViewInterface {
 
-    void initCamera(LinearLayout linearLayout, boolean hasBarcodeReader, char flashMode, boolean isFillScale, int barcodeMode);
+    void initCamera(LinearLayout linearLayout, boolean hasBarcodeReader, 
+            char flashMode, boolean isFillScale, 
+            int barcodeMode, char cameraPosition, boolean hasFaceDetection);
     void setCameraVisible(boolean isCameraVisible);
     void changeFlashMode(char captureFlashMode);
     void takePicture(final MethodChannel.Result result);

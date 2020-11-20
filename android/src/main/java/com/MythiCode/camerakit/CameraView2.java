@@ -302,6 +302,8 @@ public class CameraView2 implements CameraViewInterface, ImageReader.OnImageAvai
     private TakePictureImageListener takePictureImageListener;
     private Point displaySize;
     private boolean isReadyForTakingPicture = false;
+    private boolean hasFaceDetection;
+    private char cameraPosition;
 
 
     public CameraView2(Activity activity, FlutterMethodListener flutterMethodListener) {
@@ -310,10 +312,14 @@ public class CameraView2 implements CameraViewInterface, ImageReader.OnImageAvai
         this.flutterMethodListener = flutterMethodListener;
     }
 
-    public void initCamera(LinearLayout linearLayout, boolean hasBarcodeReader, char flashMode, boolean isFillScale, int barcodeMode) {
+    public void initCamera(LinearLayout linearLayout, boolean hasBarcodeReader,
+            char flashMode, boolean isFillScale, 
+            int barcodeMode, char cameraPosition, boolean hasFaceDetection) {
         startBackgroundThread();
         this.linearLayout = linearLayout;
         this.hasBarcodeReader = hasBarcodeReader;
+        this.cameraPosition = cameraPosition;
+        this.hasFaceDetection = hasFaceDetection;
         this.previewFlashMode = flashMode;
 
         if(hasBarcodeReader) {
