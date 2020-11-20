@@ -59,7 +59,9 @@ public class CameraView1 implements SurfaceHolder.Callback, CameraViewInterface 
 
     }
 
-    public void initCamera(LinearLayout linearLayout, boolean hasBarcodeReader, char flashMode, boolean isFillScale, int barcodeMode) {
+    public void initCamera(LinearLayout linearLayout, boolean hasBarcodeReader, 
+        char flashMode, boolean isFillScale, 
+        int barcodeMode, char cameraPosition, boolean hasFaceDetection) {
         this.linearLayout = linearLayout;
         this.previewFlashMode = flashMode;
         surfaceView = new SurfaceView(activity);
